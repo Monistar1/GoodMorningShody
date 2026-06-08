@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Good Morning, Shodi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: 'Pacifico', cursive;
+      background: #ffffff;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ===== HEART WRAPPER ===== */
+    .heart-wrapper {
+      position: relative;
+      z-index: 10;
+      cursor: pointer;
+      transition: opacity 0.4s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .heart-wrapper.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ===== GLOW AROUND HEART ===== */
+    .heart-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,64,129,0.25) 0%, rgba(255,64,129,0.08) 40%, transparent 70%);
+      animation: glowPulse 2.5s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .heart-glow::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,64,129,0.12) 0%, transparent 60%);
+      animation: glowPulse 2.5s ease-in-out infinite 0.5s;
+    }
+
+    /* ===== THE HEART ===== */
+    .heart {
+      position: relative;
+      width: 200px;
+      height: 180px;
+      z-index: 5;
+      animation: heartbeat 1.2s ease-in-out infinite;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: '';
+      position: absolute;
+      width: 100px;
+      height: 160px;
+      background: #ff4081;
+      border-radius: 100px 100px 0 0;
+    }
+
+    .heart::before {
+      left: 100px;
+      transform: rotate(-45deg);
+      transform-origin: 0 100%;
+    }
+
+    .heart::after {
+      left: 0;
+      transform: rotate(45deg);
+      transform-origin: 100% 100%;
+    }
+
+    /* ===== CLICK ME TEXT ===== */
+    .heart-text {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -45%);
+      color: #fff;
+      font-size: 26px;
+      text-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+      z-index: 20;
+      pointer-events: none;
+      white-space: nowrap;
+      text-align: center;
+      line-height: 1;
+    }
+
+    /* ===== PINK SPREAD ===== */
+    .pink-spread {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: #ff4081;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      transition: none;
+    }
+
+    .pink-spread.active {
+      animation: spread 1.2s ease-out forwards;
+    }
+
+    /* ===== MESSAGE ===== */
+    .message {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 15;
+      opacity: 0;
+      pointer-events: none;
+      padding: 20px;
+      transition: opacity 0.6s ease;
+    }
+
+    .message.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .message h1 {
+      font-size: 46px;
+      color: #fff;
+      text-shadow: 2px 4px 6px rgba(0,0,0,0.3);
+      text-align: center;
+      margin-bottom: 18px;
+      line-height: 1.3;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.3s;
+    }
+
+    .message h2 {
+      font-size: 28px;
+      color: #fff;
+      text-shadow: 2px 3px 5px rgba(0,0,0,0.3);
+      text-align: center;
+      margin-bottom: 14px;
+      line-height: 1.4;
+      font-weight: normal;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.5s;
+    }
+
+    .message h3 {
+      font-size: 24px;
+      color: #fff;
+      text-shadow: 2px 3px 5px rgba(0,0,0,0.3);
+      text-align: center;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      font-weight: normal;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.7s;
+    }
+
+    .message.show h1,
+    .message.show h2,
+    .message.show h3 {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== TRANSLATE BUTTON ===== */
+    .translate-btn {
+      margin-top: 35px;
+      padding: 16px 36px;
+      font-family: 'Pacifico', cursive;
+      font-size: 22px;
+      color: #ff4081;
+      background: #fff;
+      border: 3px solid #fff;
+      border-radius: 40px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      outline: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease 0.9s;
+    }
+
+    .message.show .translate-btn {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .translate-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+
+    .translate-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* ===== ARABIC TEXT ===== */
+    .message.arabic h1,
+    .message.arabic h2,
+    .message.arabic h3 {
+      direction: rtl;
+      font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+    }
+
+    .message.arabic h1 { font-size: 42px; }
+    .message.arabic h2 { font-size: 26px; }
+    .message.arabic h3 { font-size: 22px; }
+
+    /* ===== RESTART BUTTON ===== */
+    .restart-btn {
+      position: absolute;
+      top: 25px;
+      right: 30px;
+      color: #fff;
+      font-size: 32px;
+      cursor: pointer;
+      text-shadow: 2px 3px 5px rgba(0,0,0,0.3);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(4px);
+    }
+
+    .restart-btn.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .restart-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      14% { transform: scale(1.08); }
+      28% { transform: scale(1); }
+      42% { transform: scale(1.06); }
+      70% { transform: scale(1); }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+      50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    }
+
+    @keyframes spread {
+      0% { width: 0; height: 0; opacity: 1; }
+      100% { width: 350vmax; height: 350vmax; opacity: 1; }
+    }
+
+    /* ===== MOBILE RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .heart {
+        width: 160px;
+        height: 144px;
+      }
+      .heart::before,
+      .heart::after {
+        width: 80px;
+        height: 128px;
+        border-radius: 80px 80px 0 0;
+      }
+      .heart::before { left: 80px; }
+      .heart-text { font-size: 20px; transform: translate(-50%, -40%); }
+      .heart-glow { width: 220px; height: 220px; }
+      .heart-glow::before { width: 280px; height: 280px; }
+      .message h1 { font-size: 32px; }
+      .message h2 { font-size: 22px; }
+      .message h3 { font-size: 18px; }
+      .message.arabic h1 { font-size: 28px; }
+      .message.arabic h2 { font-size: 20px; }
+      .message.arabic h3 { font-size: 17px; }
+      .translate-btn { font-size: 18px; padding: 14px 28px; margin-top: 25px; }
+      .restart-btn { top: 15px; right: 15px; font-size: 26px; }
+    }
+
+    @media (max-width: 380px) {
+      .heart {
+        width: 130px;
+        height: 117px;
+      }
+      .heart::before,
+      .heart::after {
+        width: 65px;
+        height: 104px;
+        border-radius: 65px 65px 0 0;
+      }
+      .heart::before { left: 65px; }
+      .heart-text { font-size: 17px; transform: translate(-50%, -40%); }
+      .heart-glow { width: 180px; height: 180px; }
+      .heart-glow::before { width: 230px; height: 230px; }
+      .message h1 { font-size: 26px; }
+      .message h2 { font-size: 19px; }
+      .message h3 { font-size: 16px; }
+      .message.arabic h1 { font-size: 24px; }
+      .message.arabic h2 { font-size: 17px; }
+      .message.arabic h3 { font-size: 15px; }
+      .translate-btn { font-size: 16px; padding: 12px 22px; }
+    }
+
+    @media (max-height: 600px) {
+      .message h1 { font-size: 28px; margin-bottom: 10px; }
+      .message h2 { font-size: 20px; margin-bottom: 8px; }
+      .message h3 { font-size: 17px; margin-bottom: 6px; }
+      .translate-btn { margin-top: 20px; padding: 12px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Heart with glow and Click Me -->
+  <div class="heart-wrapper" id="heartWrapper">
+    <div class="heart-glow"></div>
+    <div class="heart"></div>
+    <span class="heart-text">Click Me</span>
+  </div>
+
+  <!-- Pink spread effect -->
+  <div class="pink-spread" id="pinkSpread"></div>
+
+  <!-- Message -->
+  <div class="message" id="message">
+    <span class="restart-btn" id="restartBtn" title="Restart">&#10005;</span>
+    <h1>Good morning, Shody.</h1>
+    <h2>Waking up feels nicer knowing you exist.</h2>
+    <h3>You're the soft thought that stays with me all day,</h3>
+    <h3>and honestly… I wish every morning started with you.</h3>
+    <button class="translate-btn" id="translateBtn">Translate to Arabic</button>
+  </div>
+
+  <script>
+    (function() {
+      var englishText = {
+        h1: "Good morning, Shody.",
+        h2: "Waking up feels nicer knowing you exist.",
+        h3_1: "You're the soft thought that stays with me all day,",
+        h3_2: "and honestly… I wish every morning started with you."
+      };
+
+      var arabicText = {
+        h1: "صباح الخير يا شودي،",
+        h2: "الصبح أحلى بس لأنك موجودة.",
+        h3_1: "اسمك أول شي يخطر ببالي،",
+        h3_2: "وكل يوم بحس إنو قلبي اختارك من جديد."
+      };
+
+      var isArabic = false;
+
+      var heartWrapper = document.getElementById('heartWrapper');
+      var pinkSpread = document.getElementById('pinkSpread');
+      var message = document.getElementById('message');
+      var restartBtn = document.getElementById('restartBtn');
+      var translateBtn = document.getElementById('translateBtn');
+
+      // Click heart - open
+      heartWrapper.addEventListener('click', function() {
+        heartWrapper.classList.add('hidden');
+        pinkSpread.classList.add('active');
+        message.classList.add('show');
+        setTimeout(function() {
+          restartBtn.classList.add('show');
+        }, 1200);
+      });
+
+      // Restart - instant reset
+      restartBtn.addEventListener('click', function() {
+        // Instant hide everything
+        message.classList.remove('show');
+        restartBtn.classList.remove('show');
+        pinkSpread.classList.remove('active');
+        heartWrapper.classList.remove('hidden');
+
+        // Reset text
+        isArabic = false;
+        updateText();
+      });
+
+      // Translate
+      translateBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        isArabic = !isArabic;
+        updateText();
+      });
+
+      function updateText() {
+        var text = isArabic ? arabicText : englishText;
+        var h1 = message.querySelector('h1');
+        var h2 = message.querySelector('h2');
+        var h3s = message.querySelectorAll('h3');
+
+        h1.textContent = text.h1;
+        h2.textContent = text.h2;
+        h3s[0].textContent = text.h3_1;
+        h3s[1].textContent = text.h3_2;
+
+        if (isArabic) {
+          message.classList.add('arabic');
+          translateBtn.textContent = 'Translate to English';
+        } else {
+          message.classList.remove('arabic');
+          translateBtn.textContent = 'Translate to Arabic';
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
